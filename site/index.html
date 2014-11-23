@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="Mosaddek">
+  <meta name="keyword" content="FlatLab, Dashboard, Bootstrap, Admin, Template, Theme, Responsive, Fluid, Retina">
+  <link rel="shortcut icon" href="img/favicon.png">
+
+  <title>FreeMarket</title>
+
+  <!-- Bootstrap core CSS -->
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/bootstrap-reset.css" rel="stylesheet">
+  <!--external css-->
+  <link href="assets/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+
+  <!-- Custom styles for this template -->
+  <link href="css/style.css" rel="stylesheet">
+  <link href="css/style-responsive.css" rel="stylesheet" />
+
+  <!-- HTML5 shim and Respond.js IE8 support of HTML5 tooltipss and media queries -->
+  <!--[if lt IE 9]>
+  <script src="js/html5shiv.js"></script>
+  <script src="js/respond.min.js"></script>
+  <![endif]-->
+
+  <script>
+    function reportBug() {
+      window.location.href = "mailto:bugreport@nxtfreemarket.com?subject=Bug Report";
+    }
+  </script> 
+
+
+  <script>
+  // For reporting on current NxtPass version and blockchain status
+  function getMarketStatus() {
+
+  	$.post( "http://127.0.0.1:17776/nxtpass", { requestType:'getMarketStatus' }, function(result) {
+  		// Store the data in session storage
+  		sessionStorage.setItem("version", result.version);
+  		sessionStorage.setItem("nrsVersion", result.nrsVersion);
+  		sessionStorage.setItem("supportedMarketVersion", result.supportedMarketVersion);
+  		sessionStorage.setItem("marketVersion", result.marketVersion);
+
+  		// Update the variosu NxtPass information fields
+  		document.getElementById("versionSection").innerHTML='Version: ' + sessionStorage.getItem("version");
+  		document.getElementById("nrsVersionSection").innerHTML='NRS Version: ' + sessionStorage.getItem("nrsVersion");
+  		document.getElementById("supportedMarketVersionSection").innerHTML='Supported Market Version: ' + sessionStorage.getItem("supportedMarketVersion");
+  		document.getElementById("marketVersionSection").innerHTML='Market Version: ' + sessionStorage.getItem("marketVersion");
+    }, "json");
+  };
+  </script>
+
+</head>
+
+<body class="full-width"  onload="setAccountNumber(); getMarketStatus(); setLanguage(); setLanguageQueryStrings()">
+
+  <section id="container" class="">
+    <!--header start-->
+    <header class="header white-bg">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="fa fa-ellipsis-v"></span>
+        </button>
+
+        <!--logo start-->
+        <a id="logo_link" href="index.html?setLng=en" class="logo" >Free<span>Market</span></a>
+        <!--logo end-->
+        <div class="horizontal-menu navbar-collapse collapse ">
+          <ul class="nav navbar-nav">
+            <li><a id="home_link" href="index.html?setLng=en"><span data-i18n="menu_home">Home</span></a></li>
+            <li class="dropdown">
+              <a data-toggle="dropdown" data-hover="dropdown" class="dropdown-toggle" href="#"><span data-i18n="menu_buy">Buy</span> <b class=" fa fa-angle-down"></b></a>
+              <ul class="dropdown-menu">
+                <li><a id="view_all_link" href="ViewAll.html?setLng=en"><span data-i18n="menu_view_all">View All Items</span></a></li>
+                <li><a id="search_title_link" href="SearchByTitle.html?setLng=en"><span data-i18n="menu_search_title">Search by Title</span></a></li>
+                <li><a id="search_category_link" href="SearchByCategory.html?setLng=en"><span data-i18n="menu_search_category">Search by Category</span></a></li>
+                <li><a id="search_tag_link" href="SearchByTag.html?setLng=en"><span data-i18n="menu_search_tag">Search by Tag</span></a></li>
+                <li><a id="search_seller_link" href="SearchBySellerID.html?setLng=en"><span data-i18n="menu_search_seller">Search by Seller ID</span></a></li>
+                <li><a id="search_item_link" href="SearchByItemID.html?setLng=en"><span data-i18n="menu_search_item">Search by Item ID</span></a></li>
+                <li><a id="view_purchases_link" href="ViewYourPurchases.html?setLng=en"><span data-i18n="menu_view_purchases">View Your Purchases</span></a></li>
+              </ul>
+            </li>
+            <li class="dropdown">
+              <a data-toggle="dropdown" data-hover="dropdown" class="dropdown-toggle" href="#"><span data-i18n="menu_sell">Sell</span> <b class=" fa fa-angle-down"></b></a>
+              <ul class="dropdown-menu">
+                <li><a id="new_item_link" href="ListNewItem.html?setLng=en"><span data-i18n="menu_list_new">List New Item</span></a></li>
+                <li><a id="view_items_link" href="ViewYourItems.html?setLng=en"><span data-i18n="menu_view_items">View Your Items</span></a></li>
+              </ul>
+            </li>
+          </ul>
+
+        </div>
+        <div class="top-nav ">
+          <ul class="nav pull-right top-menu">
+            <li>
+
+            </li>
+            <!-- user login dropdown start-->
+            <li class="dropdown">
+              <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                <span class="username" id="username"><span data-i18n="menu_login_button">Log In</span></span>
+              </a>
+              <ul class="dropdown-menu extended logout">
+                <div class="log-arrow-up"></div>
+                <li><a href="#"><i class=" fa fa-info-circle"></i><div id="accountBalance"><span data-i18n="menu_login_text">Log in to store your secret phrase.</span></div></a></li>
+                <li><a id="login_link" href="login.html?setLng=en"><i class="fa fa-key"></i><div id="logintext"><span data-i18n="menu_login">Log In</span></div></a></li>
+              </ul>
+            </li>
+            <!-- user login dropdown end -->
+          </ul>
+        </div>
+
+      </div>
+
+    </header>
+    <!--header end-->
+    <!--sidebar start-->
+
+    <!--sidebar end-->
+    <!--main content start-->
+    <section id="main-content">
+      <section class="wrapper">
+        <!-- page start-->
+        <div class="row">
+
+          <div class="col-lg-7">
+            <section class="panel">
+              <header class="panel-heading">
+               <b><span data-i18n="menu_home">Home</span></b>
+             </header>                          
+             <div class="panel-body">
+              <p><b><span data-i18n="select_language">Select Your Language</span></b></p>
+
+              <p>
+
+                <div class="btn-group">
+                  <button class="btn btn-white" type="button"><span data-i18n="language_button">Language</span></button>
+                  <button data-toggle="dropdown" class="btn btn-white dropdown-toggle" type="button"><span class="caret"></span></button>
+                  <ul role="menu" class="dropdown-menu">
+                    <li><a href="index.html?setLng=en">English</a></li>
+                    <li><a href="index.html?setLng=zh">中文</a></li>
+                    <li><a href="index.html?setLng=es">Español</a></li>
+                    <li><a href="index.html?setLng=it">Italiano</a></li>
+                    <li><a href="index.html?setLng=de">Deutsch</a></li>
+                    <li><a href="index.html?setLng=ja">日本語</a></li>
+                    <li><a href="index.html?setLng=fr">Français</a></li>
+                    <li><a href="index.html?setLng=he">עברית</a></li>
+                    <li><a href="index.html?setLng=lt">Lietuviškai</a></li>
+                    <li><a href="index.html?setLng=el">ελληνικά</a></li>
+                    <li><a href="index.html?setLng=da">Dansk</a></li>
+                  </ul>
+                </div><!-- /btn-group -->
+                <hr>								
+                <p></p>
+                <p><span data-i18n="welcome_text1"></span></p>
+                <p><span data-i18n="welcome_text2"></span></p>
+                <p><span data-i18n="welcome_text3"></span></p>
+                <p><span data-i18n="welcome_text4"></span></p>
+                <p><span data-i18n="welcome_text5"></span></p>
+                <p><span data-i18n="welcome_text6"></span></p>
+
+                <p><b><a tabindex="-1" data-i18n="[href]localized_website" style="text-decoration: underline;" target="_blank">NXTFreeMarket.com</a></b></p>						  									  		
+
+
+                <hr>								
+                <p><b>Reporting Bugs</b></p>
+                <p>Technical information that will be helpful when reporting bugs:</p>
+
+                <ul class="list-group">
+                  <li><div id="versionSection">Version: </div></li>
+                  <li><div id="nrsVersionSection">NRS Version: </div></li>
+                  <li><div id="supportedMarketVersionSection">Supported Market Version: </div></li>
+                  <li><div id="marketVersionSection">Market Version: </div></li>
+                </ul>
+
+
+                <p>Report bugs to <a tabindex="-1" href="mailto:bugreport@nxtfreemarket.com?subject=Bug Report" target="_blank">bugreport@nxtfreemarket.com</a>.</p>	
+
+
+
+
+
+              </div>
+            </section>
+          </div>
+
+          <!-- page end-->
+        </section>
+      </div>
+    </section>
+  </section>
+  <!--main content end-->
+
+  <!-- js placed at the end of the document so the pages load faster -->
+  <script src="js/jquery-1.11.1.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/jquery.dcjqaccordion.2.7.min.js"></script>
+  <script src="js/bootstrap-hover-dropdown.min.js"></script>
+  <script src="js/respond.min.js" ></script>
+
+  <!--common script for all pages-->
+  <script src="js/freemarket_scripts.js"></script>
+  <script src="js/common-scripts.js"></script>
+  <script src="js/i18next-1.7.4.min.js"></script>
+  <script src="js/freemarket_localization_scripts.js"></script>
+
+</body>
+</html>

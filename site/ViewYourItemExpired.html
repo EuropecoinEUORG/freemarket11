@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="Mosaddek">
+  <meta name="keyword" content="FlatLab, Dashboard, Bootstrap, Admin, Template, Theme, Responsive, Fluid, Retina">
+  <link rel="shortcut icon" href="img/favicon.png">
+
+  <title>FreeMarket</title>
+
+  <!-- Bootstrap core CSS -->
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/bootstrap-reset.css" rel="stylesheet">
+  <!--external css-->
+  <link href="assets/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+
+  <!-- Custom styles for this template -->
+  <link href="css/style.css" rel="stylesheet">
+  <link href="css/style-responsive.css" rel="stylesheet" />
+  <link href="css/spinner.css" rel="stylesheet">
+
+  <!-- HTML5 shim and Respond.js IE8 support of HTML5 tooltipss and media queries -->
+  <!--[if lt IE 9]>
+  <script src="js/html5shiv.js"></script>
+  <script src="js/respond.min.js"></script>
+  <![endif]-->
+
+  <script>
+function checkLogin(){ // Redirect the user if the user is not already logged in
+ var loginStatus = sessionStorage.getItem("loginStatus");
+ if (loginStatus == 'notloggedin') {
+   var fmlang = localStorage.getItem("fmlang");
+   window.location.href = 'login_notice.html' + '?setLng=' + fmlang;
+ } 
+};		
+</script>    
+
+
+<script>
+  function backToSearch(){
+   var searchPage = localStorage.getItem("searchpage");
+   var fmlang = localStorage.getItem("fmlang");
+   window.location.href = searchPage + '?setLng=' + fmlang;
+ };
+</script>
+
+
+<!--cancelListing function-->
+<script>
+  function listAgain() {
+   var secretPhrase = sessionStorage.getItem("uselessInformation");
+   
+	// Get fields for relisting item
+	var relistTitle = sessionStorage.getItem("relistTitle");
+	var relistPrice = sessionStorage.getItem("relistPrice");
+	var relistCategory1 = sessionStorage.getItem("relistCategory1");
+	var relistDescription = sessionStorage.getItem("relistDescription");
+	var relistMainImageURL = sessionStorage.getItem("relistMainImageURL");
+	var relistTag1 = sessionStorage.getItem("relistTag1");
+	var relistTag2 = sessionStorage.getItem("relistTag2");
+	var relistTag3 = sessionStorage.getItem("relistTag3");
+	var relistAdditional_image_1_URL = sessionStorage.getItem("relistAdditional_image_1_URL");
+	var relistAdditional_image_2_URL = sessionStorage.getItem("relistAdditional_image_2_URL");
+	var relistAdditional_image_3_URL = sessionStorage.getItem("relistAdditional_image_3_URL");
+	var relistShippingMethod1 = sessionStorage.getItem("relistShippingMethod1");
+	var relistShippingMethod2 = sessionStorage.getItem("relistShippingMethod2");
+	var relistShippingMethod3 = sessionStorage.getItem("relistShippingMethod3");
+	var relistShippingCost1 = sessionStorage.getItem("relistShippingCost1");
+	var relistShippingCost2 = sessionStorage.getItem("relistShippingCost2");
+	var relistShippingCost3 = sessionStorage.getItem("relistShippingCost3");
+	
+   // Disable the button while NxtPass does its work
+   document.getElementById("relistButtonSection").innerHTML = "<button type=\"button\" id=\"buyButton\" class=\"btn btn-success\"><i class=\"fa fa-refresh fa-spin\"></i> &nbsp;Processing...</button>";
+
+
+  $.post( "http://127.0.0.1:17776/nxtpass", { requestType:'listItem', item_title: relistTitle, category1: relistCategory1, item_tag1: relistTag1, item_tag2: relistTag2, item_tag3: relistTag3, price: relistPrice, item_description: relistDescription, main_image_url: relistMainImageURL, additional_image_1_URL: relistAdditional_image_1_URL, additional_image_2_URL: relistAdditional_image_2_URL, additional_image_3_URL: relistAdditional_image_3_URL, shippingMethod1: relistShippingMethod1, shippingCost1: relistShippingCost1, shippingMethod2: relistShippingMethod2, shippingCost2: relistShippingCost2, shippingMethod3: relistShippingMethod3, shippingCost3: relistShippingCost3, usersSecretPhrase: secretPhrase },
+    function(result){
+      
+      var relisting_response = result.query_status;
+      if (relisting_response == 'good') {
+       var listingID = result.listing_id;	  		
+       document.getElementById("pageHeader").innerHTML="Success";  		
+       document.getElementById("successMessage").innerHTML = "You have relisted your item as item number: <a href=\"ViewYourItemSingle.html?itemid=" + listingID + "\">" + listingID + "</a>. NOTE: Your item may take a few minutes to appear.<br />";  		
+     }
+     else {
+       document.getElementById("successMessage").innerHTML=" Result: FAILURE to relist item.";  		
+     }
+    }, "json"); // Specifies JSON as the expected result
+};
+</script>
+<!--End cancelListing function-->
+
+
+<!---searchByItemID-->
+<script>
+  function searchByItemID(){
+    var listingid=(getQueryVariable("itemid"));
+    $.post( "http://127.0.0.1:17776/nxtpass", { requestType:'searchSingleItem', listing_id: listingid },              
+      function(result){
+	    // Remove Relist button if item cannot be relisted    
+     var status = result.item_status;
+     if (status==="Sold" || status==="Canceled" || status==="Pending")
+     { 
+			  document.getElementById("relistButtonSection").innerHTML=" "; // Remove Relist button section
+		  } // End of code to remove Relist button if item cannot be relisted    
+		  
+     var displayPrice = result.price/100000000;
+     document.getElementById("title").innerHTML= escapeHtml(result.item_title);
+     document.getElementById("itemID").innerHTML= escapeHtml(result.listing_id);
+     document.getElementById("price").innerHTML= displayPrice.toFixed(8);
+     document.getElementById("status").innerHTML= escapeHtml(result.item_status);
+     document.getElementById("top_image").innerHTML="<img alt=\"\" src=\""+ escapeHtml(result.main_image_url) + "\">";
+
+     var nxtDate	= result.start_timestamp;
+     var unixEpoch = moment("Thu, 01 Jan 1970 00:00:00 GMT");
+     var nxtEpoch = moment(unixEpoch).add('seconds', 1385294400);
+     var convertedListedTimeMoment = moment(nxtEpoch).add('seconds', nxtDate);
+     var convertedListedTime = moment(convertedListedTimeMoment).format("dddd, MMMM Do YYYY, h:mm:ss a");
+     
+     var nxtDateExpire = result.end_timestamp;
+     var convertedExpirationMoment = moment(nxtEpoch).add('seconds', nxtDateExpire);
+     var convertedExpiration = moment(convertedExpirationMoment).format("dddd, MMMM Do YYYY, h:mm:ss a");
+
+		// Clean the tags
+    var displayTags = '';
+    if (result.item_tag1){
+     displayTags += escapeHtml(result.item_tag1);
+   }
+   if (result.item_tag2){
+     displayTags += ', ' + escapeHtml(result.item_tag2);
+   }
+   if (result.item_tag3){
+     displayTags += ', ' + escapeHtml(result.item_tag3);
+   }
+   
+   document.getElementById("expiration").innerHTML= convertedExpiration;
+   document.getElementById("tags").innerHTML= displayTags;
+   
+   // Translate and insert text for re-list button
+   var translatedRelistButtonText = $.t("button_list_again");
+   document.getElementById("relistButtonText").innerHTML = translatedRelistButtonText;
+
+		// Clean the following fields
+		document.getElementById("category").innerHTML= escapeHtml(result.category1);
+		document.getElementById("description").innerHTML= escapeHtml(result.item_description);
+		
+		// Get all item fields into session storage for the relist function to use
+		var relistPrice = result.price;
+		sessionStorage.setItem("relistPrice", relistPrice);
+		
+		var relistTitle = escapeHtml(result.item_title);
+		sessionStorage.setItem("relistTitle", relistTitle);
+		
+		var relistCategory1 = escapeHtml(result.category1);
+		sessionStorage.setItem("relistCategory1", relistCategory1);
+		
+		var relistDescription = escapeHtml(result.item_description);
+		sessionStorage.setItem("relistDescription", relistDescription);
+		
+		var relistMainImageURL = result.main_image_url;
+		sessionStorage.setItem("relistMainImageURL", relistMainImageURL);
+		
+		var relistTag1 = escapeHtml(result.item_tag1);
+		sessionStorage.setItem("relistTag1", relistTag1);
+		
+		var relistTag2 = escapeHtml(result.item_tag2);
+		sessionStorage.setItem("relistTag2", relistTag2);
+		
+		var relistTag3 = escapeHtml(result.item_tag3);
+		sessionStorage.setItem("relistTag3", relistTag3);
+		
+		var relistAdditional_image_1_URL = result.additional_image_1_URL;
+		sessionStorage.setItem("relistAdditional_image_1_URL", relistAdditional_image_1_URL);
+		
+		var relistAdditional_image_2_URL = result.additional_image_2_URL;
+		sessionStorage.setItem("relistAdditional_image_2_URL", relistAdditional_image_2_URL);
+		
+		var relistAdditional_image_3_URL = result.additional_image_3_URL;
+		sessionStorage.setItem("relistAdditional_image_3_URL", relistAdditional_image_3_URL);
+		
+		var relistShippingMethod1 = escapeHtml(result.shippingMethod1);
+		sessionStorage.setItem("relistShippingMethod1", relistShippingMethod1);
+		
+		var relistShippingMethod2 = escapeHtml(result.shippingMethod2);
+		sessionStorage.setItem("relistShippingMethod2", relistShippingMethod2);
+		
+		var relistShippingMethod3 = escapeHtml(result.shippingMethod3);
+		sessionStorage.setItem("relistShippingMethod3", relistShippingMethod3);
+		
+		var relistShippingCost1 = escapeHtml(result.shippingCost1);
+		sessionStorage.setItem("relistShippingCost1", relistShippingCost1);
+		
+		var relistShippingCost2 = escapeHtml(result.shippingCost2);
+		sessionStorage.setItem("relistShippingCost2", relistShippingCost2);
+		
+		var relistShippingCost3 = escapeHtml(result.shippingCost3);
+		sessionStorage.setItem("relistShippingCost3", relistShippingCost3);
+
+		if (relistAdditional_image_1_URL){
+      var additional_images_section = '<div id="polaroid">';
+      additional_images_section += '<figure>';	
+      additional_images_section += '<img src="' + relistAdditional_image_1_URL + '" width="200" height="200" alt="Image 1" />';	
+      additional_images_section += '</figure>';	
+    }
+    
+    if (relistAdditional_image_2_URL){
+     if (!relistAdditional_image_1_URL){
+      var additional_images_section = '<div id="polaroid">';
+    }
+    additional_images_section += '<figure>';	
+    additional_images_section += '<img src="' + relistAdditional_image_2_URL + '" width="200" height="200" alt="Image 2" />';	
+    additional_images_section += '</figure>';	
+  }
+  
+  if (relistAdditional_image_3_URL){
+   if (!relistAdditional_image_1_URL && !relistAdditional_image_2_URL){
+    var additional_images_section = '<div id="polaroid">';
+  }
+  additional_images_section += '<figure>';	
+  additional_images_section += '<img src="' + relistAdditional_image_3_URL + '" width="200" height="200" alt="Image 3" />';	
+  additional_images_section += '</figure>';	
+}
+
+if (additional_images_section){
+  additional_images_section += '</div><br />';	
+  document.getElementById("extra_images_section").innerHTML=additional_images_section;
+}
+
+
+	}, "json"); // Specifies JSON as the expected result
+};
+</script>
+<!---End searchByItemID-->
+
+
+
+
+</head>
+<body class="full-width" onload="setAccountNumber(); checkLogin(); searchByItemID(); setLanguage(); setLanguageQueryStrings();">
+
+  <section id="container" class="">
+    <!--header start-->
+    <header class="header white-bg">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="fa fa-ellipsis-v"></span>
+        </button>
+
+        <!--logo start-->
+        <a id="logo_link" href="index.html?setLng=en" class="logo" >Free<span>Market</span></a>
+        <!--logo end-->
+        <div class="horizontal-menu navbar-collapse collapse ">
+          <ul class="nav navbar-nav">
+            <li><a id="home_link" href="index.html?setLng=en"><span data-i18n="menu_home">Home</span></a></li>
+            <li class="dropdown">
+              <a data-toggle="dropdown" data-hover="dropdown" class="dropdown-toggle" href="#"><span data-i18n="menu_buy">Buy</span> <b class=" fa fa-angle-down"></b></a>
+              <ul class="dropdown-menu">
+                <li><a id="view_all_link" href="ViewAll.html?setLng=en"><span data-i18n="menu_view_all">View All Items</span></a></li>
+                <li><a id="search_title_link" href="SearchByTitle.html?setLng=en"><span data-i18n="menu_search_title">Search by Title</span></a></li>
+                <li><a id="search_category_link" href="SearchByCategory.html?setLng=en"><span data-i18n="menu_search_category">Search by Category</span></a></li>
+                <li><a id="search_tag_link" href="SearchByTag.html?setLng=en"><span data-i18n="menu_search_tag">Search by Tag</span></a></li>
+                <li><a id="search_seller_link" href="SearchBySellerID.html?setLng=en"><span data-i18n="menu_search_seller">Search by Seller ID</span></a></li>
+                <li><a id="search_item_link" href="SearchByItemID.html?setLng=en"><span data-i18n="menu_search_item">Search by Item ID</span></a></li>
+                <li><a id="view_purchases_link" href="ViewYourPurchases.html?setLng=en"><span data-i18n="menu_view_purchases">View Your Purchases</span></a></li>
+              </ul>
+            </li>
+            <li class="dropdown">
+              <a data-toggle="dropdown" data-hover="dropdown" class="dropdown-toggle" href="#"><span data-i18n="menu_sell">Sell</span> <b class=" fa fa-angle-down"></b></a>
+              <ul class="dropdown-menu">
+                <li><a id="new_item_link" href="ListNewItem.html?setLng=en"><span data-i18n="menu_list_new">List New Item</span></a></li>
+                <li><a id="view_items_link" href="ViewYourItems.html?setLng=en"><span data-i18n="menu_view_items">View Your Items</span></a></li>
+              </ul>
+            </li>
+          </ul>
+
+        </div>
+        <div class="top-nav ">
+          <ul class="nav pull-right top-menu">
+            <li>
+              
+            </li>
+            <!-- user login dropdown start-->
+            <li class="dropdown">
+              <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                <span class="username" id="username"><span data-i18n="menu_login_button">Log In</span></span>
+              </a>
+              <ul class="dropdown-menu extended logout">
+                <div class="log-arrow-up"></div>
+                <li><a href="#"><i class=" fa fa-info-circle"></i><div id="accountBalance"><span data-i18n="menu_login_text">Log in to store your secret phrase.</span></div></a></li>
+                <li><a id="login_link" href="login.html?setLng=en"><i class="fa fa-key"></i><div id="logintext"><span data-i18n="menu_login">Log In</span></div></a></li>
+              </ul>
+            </li>
+            <!-- user login dropdown end -->
+          </ul>
+        </div>
+
+      </div>
+
+    </header>
+    <!--header end-->
+    <!--sidebar start-->
+
+    <!--sidebar end-->
+    <!--main content start-->
+    <section id="main-content">
+      <section class="wrapper">
+        <!-- page start-->
+        <div class="row">
+
+          <div class="col-lg-12">
+            <section class="panel">
+              <header class="panel-heading">
+                <button type="button" class="btn btn-default" onclick="backToSearch()"><i class="fa fa-arrow-left"></i><span data-i18n="button_back_to_search">Back to Search</span></button>
+
+                <span id="pageHeader"></span>
+
+              </header>                          
+              <div class="panel-body">
+
+                <div class="form-group">
+                  <span id="successMessage">
+
+                    <!--widget start-->
+                    <aside class="profile-nav alt green-border">
+                      <section class="panel">
+                        <div class="user-heading alt green-bg">
+                          <a href="#">
+                            <span id="top_image"><img alt="" src="img/Box-icon.png"></span>
+                          </a>
+                          <h1 id="title">No Item Title</h1>
+                          <p><span data-i18n="item_id">Item ID</span>: <span id="itemID"></span></p>
+                          <p><span data-i18n="status">Status</span>: <span id="status"></span></p>
+                          <br />
+                          <hr>
+                          <p><i class="fa fa-tasks"></i> <span data-i18n="categories">Category</span>: <span id="category"></span></a></p>
+                          <p><i class="fa fa-tags"></i> <span data-i18n="tags">Tags</span>: <span id="tags"></span></a></p>
+                          <p><i class="fa fa-clock-o"></i> <span data-i18n="expiration">Expires</span>: <span id="expiration"></span></a></p>
+                          <p><i class="fa fa-money"></i> <span data-i18n="price_with_nxt">Price: NXT </span><span id="price"></span></a></p>
+                          <hr>
+                          <p><span data-i18n="description">Description</span>:<br /><span id="description"></span></p>
+                        </div>
+
+
+                      </section>
+                    </aside>
+                    <!--widget end-->
+
+                    <!--additional images section start-->
+                    <div id="extra_images_section"></div>
+                    <!--additional images section end-->
+
+
+                    <hr>
+                    
+                  <div id="relistButtonSection">		
+                    <button type="button" id="relistButton" class="btn btn-success" onclick="listAgain();"><div id="relistButtonText"></div></button>
+                  </div> <!--End of relistButtonSection div-->
+                    
+                    
+                    
+<!--
+                    <div id="relistButtonSection">		
+                      <div class="form-group">
+                        <a class="btn btn-danger" onclick="listAgain()" type="button">
+                          <span data-i18n="button_list_again">List Again</span>
+                        </a>                         
+                      </div>
+                    </div>
+-->                    
+
+                    
+                    
+                    
+                  </div>
+                </section>
+              </div>                      
+            </section>
+          </div>
+        </span><!--end successMessage span-->
+        
+        <div id ="searchResults">
+
+        </div>
+
+        <!-- page end-->
+      </section>
+    </div>
+  </section>
+</section>
+<!--main content end-->
+
+
+<!-- js placed at the end of the document so the pages load faster -->
+<script src="js/jquery-1.11.1.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/jquery.dcjqaccordion.2.7.min.js"></script>
+<script src="js/bootstrap-hover-dropdown.min.js"></script>
+<script src="js/respond.min.js" ></script>
+<script src="js/moment.min.js"></script>
+
+<!--common script for all pages-->
+<script src="js/freemarket_scripts.js"></script>
+<script src="js/common-scripts.js"></script>
+<script src="js/i18next-1.7.4.min.js"></script>
+<script src="js/freemarket_localization_scripts.js"></script>
+
+</body>
+</html>

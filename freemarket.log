@@ -1,0 +1,10 @@
+2014-11-23 17:19:28 INFO: NxtPass 1.0.15
+2014-11-23 17:19:28 INFO: Started API server at 127.0.0.1:17776
+2014-11-23 17:19:30 INFO: Market NXT-6EEL-B3HC-JSNV-5W4CR status:
+2014-11-23 17:19:30 INFO: Market version is set to 1
+2014-11-23 17:19:30 INFO: Transaction fee is set to 100000000
+2014-11-23 17:19:30 INFO: Default listing fee is set to 1
+2014-11-23 17:19:30 INFO: Double listing fee is set to 1
+2014-11-23 17:19:30 INFO: Market is opened for trade
+2014-11-23 17:23:12 INFO: BUY: title = $50 USD bill, price = 2800.0 NXT
+2014-11-23 17:23:22 INFO: BUY: txid = 13865044091555283133
